@@ -15,7 +15,7 @@ bpm is based on npm. Like npm it uses package.json. It extends package.json with
 ## Installation
 
 ``` shell
-npm install bpm --global
+npm install brainpm  --global
 ```
 
 ## Usage
