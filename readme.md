@@ -1,8 +1,7 @@
 # bpm
-the package manager for the brain
-----
+a package manager for the brain (very experimental)
 
-bpm is based on npm. Like npm it uses package.json. It extends package.json with a property named `brain`. brain is an object that let's you specify what knowledge is required to understand the learning material and what knowledge the learning material provides.
+bpm is based on npm. Like npm it uses package.json. It extends package.json with a property named `brain`. brain is an object that lets you specify what knowledge is required to understand the learning material and what knowledge the learning material provides.
 
 ``` javascript
 ...
