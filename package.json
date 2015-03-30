@@ -3,7 +3,7 @@
   "version": "1.6.0",
   "description": "a package manager for the brain",
   "bin": {
-    "bpm": "lib/cli.js"
+    "bpm": "cli/index.js"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
