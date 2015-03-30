@@ -3,7 +3,7 @@ var nopt = require('nopt');
 var rc = require('rc');
 var opts = nopt();
 var moment = require('moment');
-var walk = require('../lib/walk');
+var walk = require('../lib/walk').walk;
 
 var config = rc('bpm');
 //console.log(config);
