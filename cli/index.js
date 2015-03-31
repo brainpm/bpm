@@ -3,6 +3,10 @@ var nopt = require('nopt');
 var rc = require('rc');
 var opts = nopt();
 var moment = require('moment');
+var chalk = require('chalk');
+var columnify = require('columnify');
+
+var _ = require('lodash');
 var walk = require('../lib/walk').walk;
 
 var config = rc('bpm');
@@ -16,28 +20,68 @@ var command = opts.argv.remain[0];
 
 switch(command) {
     case 'walk':
+        var visited = [];
+        if (typeof(opts.entry) !== 'undefined') {
+            visited = [opts.entry];
+        }
         require('./toc')(config).toc(function(err, toc) {
             if (err) {
                 console.log(err);
                 process.exit(1);
             }
-            walk(toc, function(err) {
+
+            function visit(knowledge, options, pick) {
+                console.log('knowledge:', knowledge);
+                console.log('options are', _.map(options, function(e) {return e.pkg.name;}).join(', '));
+                console.log('picking', pick.pkg.name);
+                console.log('new knowledge:', pick.pkg.brain.provides);
+            }
+            walk(toc, visited, visit, function(err) {
                 if (err) {
                     console.error(err);
+                    if (typeof(err.unreachable) !== 'undefined') {
+                        console.error('Unreachable episodes:', _.map(err.unreachable, function(e) {return e.pkg.name;}).join(', '));
+                    }
                     process.exit(1);
                 }
             });
         });
         break;
     case 'toc':
-        require('./toc.js')(config).toc(function(err, data) {
+        require('./toc.js')(config).toc(function(err, toc) {
             if (err) {
                 console.log(err);
                 process.exit(1);
             }
-            data.forEach(function(episode) {
-                //console.log(episode);
-                console.log(episode.pkg.name, episode.pkg.brain.provides.join(', '));        
+            walk(toc, [], function() {}, function(err, visited) {
+                toc = visited;
+                if (err !== null && typeof(err.unreachable) !== 'undefined') {
+                    toc = toc.concat(_.map(err.unreachable, function(e) {
+                        e.unreachable = true;
+                        return e;
+                    }));
+                }
+                toc = _(toc).map(function(t) {
+                    return {
+                        ' ': t.unreachable ? '!' : ' ',
+                        name: chalk[t.pkg.brain.track || 'white'](t.pkg.name),
+                        version: t.pkg.version,
+                        provides: (t.pkg.brain.provides||[]).join(' '),
+                        requires: (t.pkg.brain.requires||[]).join(' '),
+                        // track: t.pkg.brain.track || '',
+                        updated_at: moment(t.repo.updated_at).fromNow()
+                    };
+                }).value();
+                console.log(columnify(toc, {
+                    config: {
+                        requires: {
+                            maxWidth: 20
+                        },
+                        provides: {
+                            maxWidth: 20 
+                        }
+                    }
+                }));
             });
         });
         break;

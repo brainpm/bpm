@@ -23,7 +23,7 @@ module.exports = function(config) {
                 return cb(e);
             }
             var ret = {
-                updated_at: repo.updated_at,
+                repo: repo,
                 pkg: data
             };
             cb(null, ret);
