@@ -8,6 +8,7 @@ var columnify = require('columnify');
 
 var _ = require('lodash');
 var walk = require('../lib/walk').walk;
+var getMenu = require('../lib/walk').getMenu;
 
 var config = rc('bpm');
 //console.log(config);
@@ -19,6 +20,35 @@ if (opts.argv.remain.length === 0) {
 var command = opts.argv.remain[0];
 
 switch(command) {
+    case 'play':
+        var tracks = ['yellow', 'black', 'blue'];
+        require('./toc')(config).toc(function(err, toc) {
+            if (err) {
+                console.log(err);
+                process.exit(1);
+            }
+            var menu = getMenu(toc, ['intro'], tracks, ['intro'], 4);
+            var option = 0;
+            var options = {};
+            var columns = _.map(tracks, function(t) {
+                var episodes = menu[t];
+                var lines = _.map(episodes, function(e) {
+                    var color = e.pkg.brain.track;
+                    var requires = '';
+                    var optionString = '';
+                    if (e.enabled === false) {
+                        requires = " " + chalk.red('(' + e.pkg.brain.requires.join(', ') + ')');
+                    } else {
+                        options[option] = e;
+                        optionString = "" + (++option) + ')';
+                    }
+                    return chalk.white(optionString) + " " + chalk[color](e.pkg.name) + requires;
+                });
+                return lines;
+            });
+            console.log(_.flatten(columns).join('\n'));
+        });
+        break;
     case 'walk':
         var visited = [];
         if (typeof(opts.entry) !== 'undefined') {
