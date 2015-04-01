@@ -27,7 +27,7 @@ switch(command) {
                 console.log(err);
                 process.exit(1);
             }
-            var menu = getMenu(toc, ['intro'], tracks, ['intro'], 4);
+            var menu = getMenu(toc, ['intro'], ['intro'], tracks, 4);
             var option = 0;
             var options = {};
             var columns = _.map(tracks, function(t) {
@@ -51,8 +51,12 @@ switch(command) {
         break;
     case 'walk':
         var visited = [];
+        var knowledge = [];
         if (typeof(opts.entry) !== 'undefined') {
             visited = [opts.entry];
+        }
+        if (typeof(opts.knowledge) !== 'undefined') {
+            knowledge = [opts.knowledge];
         }
         require('./toc')(config).toc(function(err, toc) {
             if (err) {
@@ -66,7 +70,7 @@ switch(command) {
                 console.log('picking', pick.pkg.name);
                 console.log('new knowledge:', pick.pkg.brain.provides);
             }
-            walk(toc, visited, visit, function(err) {
+            walk(toc, visited, knowledge, visit, function(err) {
                 if (err) {
                     console.error(err);
                     if (typeof(err.unreachable) !== 'undefined') {
