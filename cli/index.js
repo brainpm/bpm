@@ -138,7 +138,12 @@ switch(command) {
         require('./init').init(config);
         break;
     case 'bundle':
-        require('./bundle').bundle(opts, function() {});
+        require('./bundle').bundle(opts, function(err) {
+            if (err) {
+                console.error(err.message);
+                process.exit(1);
+            }
+        });
         break;
     case 'rebundle-all':
         require('./rebundle')(config).rebundleAll(function(err) {

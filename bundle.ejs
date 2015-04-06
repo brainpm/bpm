@@ -2,8 +2,19 @@ module.exports.pkg = PKGJSON=<%- JSON.stringify(pkg) %>/*PKGJSON*/;
 getHTML = module.exports.getHTML = function() {
     return <%- JSON.stringify(content) %>;
 };
+getDocumentFragment = module.exports.getDocumentFragment = function() {
+    var html = getHTML();
+    var frag = document.createDocumentFragment();
+    var div = document.createElement('div');
+    div.innerHTML = html;
+    while (div.firstChild) frag.appendChild(div.firstChild);
+    <% if (pkg.brain.main) { %>
+        require("<%- cwd + '/' + pkg.brain.main %>")(frag);
+    <% } %>
+    return frag;
+};
 
 // event-based JSONP support
 if (typeof(window) !== 'undefined' && window.events) {
-    window.events.emit('append_episode', PKGJSON.brain.track, PKGJSON, getHTML());
+    window.events.emit('append_episode', PKGJSON.brain.track, PKGJSON, getHTML(), module.exports);
 }

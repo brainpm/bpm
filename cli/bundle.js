@@ -46,12 +46,16 @@ exports.bundle = function(opts, cb) {
     });
 
     var cs = concat(htmlReady);
+    combined.on('error', function(err) {
+        return cb(new Error('error while content-transform:'+ error.message));
+    });
     combined.pipe(cs);
     combined.write(html);
     combined.end();
 
     function htmlReady(html) {
         var ctx = {
+            cwd: process.cwd(),
             content: html, 
             pkg: pkg
         };
@@ -61,10 +65,14 @@ exports.bundle = function(opts, cb) {
             fs.writeFileSync('./.bpm/_index.js', code, 'utf-8');
             fs.writeFileSync('./.bpm/package.json', JSON.stringify(pkg), 'utf-8');
             bfy.add('./.bpm/_index.js');
-            bfy.transform(require.resolve('markdownify'));
+            //bfy.transform(require.resolve('markdownify'));
+            bfy.transform(require.resolve('cssify'), {global: true});
 
             var stream = bfy.bundle();
             stream.pipe(fs.createWriteStream('./.bpm/index.js'));
+            stream.on('error', function(err) {
+                return cb(new Error('error while browserify.bundle:'+ err.message));
+            });
             stream.on('end', function() {
                 console.log('done bundling ' + pkg.name);
                 fs.unlinkSync('./.bpm/_index.js');
