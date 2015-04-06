@@ -1,12 +1,9 @@
-
-getMeta = module.exports.getMeta = function() {
-    return require('<%= package_json_path %>');
-};
+module.exports.pkg = PKGJSON=<%- JSON.stringify(pkg) %>/*PKGJSON*/;
 getHTML = module.exports.getHTML = function() {
-    return require('<%= markdown_path %>');
+    return <%- JSON.stringify(content) %>;
 };
 
 // event-based JSONP support
 if (typeof(window) !== 'undefined' && window.events) {
-    window.events.emit('append_episode', getMeta().brain.track, getMeta(), getHTML());
+    window.events.emit('append_episode', PKGJSON.brain.track, PKGJSON, getHTML());
 }

@@ -1,10 +1,13 @@
 var fs = require('fs');
+var _ = require('lodash');
 var ejs = require('ejs');
 var path = require('path');
 var mkdirp = require('mkdirp');
 var template = require.resolve('../bundle.ejs');
 template = fs.readFileSync(template, 'utf-8');
 var bfy = require('browserify')();
+var marked = require('marked');
+var concat = require('concat-stream');
 
 exports.bundle = function(opts, cb) {
     // load package.json
@@ -31,25 +34,43 @@ exports.bundle = function(opts, cb) {
     if (markdown_path === null) {
         throw new Error('unable to fund markdown file');
     }
-    var ctx = {
-        markdown_path: markdown_path,
-        package_json_path: package_json_path
-    };
-    var code = ejs.render(template, ctx);
-    mkdirp('./.bpm', function(err) {
-        if (err) throw err;
-        fs.writeFileSync('./.bpm/_index.js', code, 'utf-8');
-        fs.writeFileSync('./.bpm/package.json', JSON.stringify(pkg), 'utf-8');
-        bfy.add('./.bpm/_index.js');
-        bfy.transform(require.resolve('markdownify'));
-        
-        var stream = bfy.bundle();
-        stream.pipe(fs.createWriteStream('./.bpm/index.js'));
-        stream.on('end', function() {
-            console.log('done bundling ' + pkg.name);
-            fs.unlinkSync('./.bpm/_index.js');
-            cb(null);
-        });
+    // render markdown
+    var html = marked(fs.readFileSync(markdown_path, 'utf8'));
+    var transforms = pkg.brain['content-transform'] || [];
+    transforms = _.map(transforms, function(t) {
+        var tp = path.join(process.cwd(), 'node_modules', t);
+        return require(tp)();
     });
+    var combined = _.reduce(transforms, function(combined, n) {
+        return combined.pipe(n);
+    });
+
+    var cs = concat(htmlReady);
+    combined.pipe(cs);
+    combined.write(html);
+    combined.end();
+
+    function htmlReady(html) {
+        var ctx = {
+            content: html, 
+            pkg: pkg
+        };
+        var code = ejs.render(template, ctx);
+        mkdirp('./.bpm', function(err) {
+            if (err) throw err;
+            fs.writeFileSync('./.bpm/_index.js', code, 'utf-8');
+            fs.writeFileSync('./.bpm/package.json', JSON.stringify(pkg), 'utf-8');
+            bfy.add('./.bpm/_index.js');
+            bfy.transform(require.resolve('markdownify'));
+
+            var stream = bfy.bundle();
+            stream.pipe(fs.createWriteStream('./.bpm/index.js'));
+            stream.on('end', function() {
+                console.log('done bundling ' + pkg.name);
+                fs.unlinkSync('./.bpm/_index.js');
+                cb(null);
+            });
+        });
+    }
 };
 
