@@ -87,7 +87,7 @@ switch(command) {
                 console.log(err);
                 process.exit(1);
             }
-            walk(toc, [], function() {}, function(err, visited) {
+            walk(toc, [], [], function() {}, function(err, visited) {
                 toc = visited;
                 if (err !== null && typeof(err.unreachable) !== 'undefined') {
                     toc = toc.concat(_.map(err.unreachable, function(e) {
