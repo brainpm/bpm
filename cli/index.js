@@ -96,12 +96,13 @@ switch(command) {
                     }));
                 }
                 toc = _(toc).map(function(t) {
+                    var tmp;
                     return {
                         ' ': t.unreachable ? '!' : ' ',
                         name: chalk[t.pkg.brain.track || 'white'](t.pkg.name),
                         version: t.pkg.version,
-                        provides: (t.pkg.brain.provides||[]).join(' '),
-                        requires: (t.pkg.brain.requires||[]).join(' '),
+                        provides: (tmp = t.pkg.brain.provides||[]).length ? tmp.join(' ') : '-',
+                        requires: (tmp = t.pkg.brain.requires||[]).length ? tmp.join(' ') : '-',
                         // track: t.pkg.brain.track || '',
                         updated_at: moment(t.repo.updated_at).fromNow()
                     };

@@ -10,7 +10,7 @@ module.exports = function(config) {
     }
 
     function getPackageJSON(repo, cb) {
-        var episodeUrl = getPkgUrl(repo.owner, repo.name);
+        var episodeUrl = getPkgUrl(repo.owner.login, repo.name);
         request(optionsFromUrl(episodeUrl), function(err, response, body) {
             if (err) return cb(err);
             if (response.statusCode !== 200) {
@@ -61,7 +61,8 @@ module.exports = function(config) {
                 console.log(data);
                 return cb(e);
             }
-            var ret = _(repos).map(function(r) {
+            /*
+            var repos = _(repos).map(function(r) {
                 return {
                     owner: r.owner.login,
                     name: r.name,
@@ -69,7 +70,8 @@ module.exports = function(config) {
                     url: r.ssh_url
                 };
             }).value();
-            cb(null, ret);
+            */
+            cb(null, repos);
         });
     };
     return api;
