@@ -5,7 +5,26 @@ var opts = nopt();
 var moment = require('moment');
 var chalk = require('chalk');
 var columnify = require('columnify');
+var spin = require('term-spinner');
 
+function startWait(msg) {
+    console.log();
+    var spinner = spin.new();
+    spinner.timer = setInterval(function () {
+        spinner.next();
+        process.stdout.clearLine();
+        process.stdout.cursorTo(0);
+        process.stdout.write([spinner.current, msg].join(" "));
+    }, 125);
+    return spinner;
+}
+
+function stopWait(spinner) {
+    process.stdout.clearLine();
+    process.stdout.cursorTo(0);
+    clearInterval(spinner.timer);
+}
+    
 var _ = require('lodash');
 var walk = require('../lib/walk').walk;
 var getMenu = require('../lib/walk').getMenu;
@@ -82,7 +101,9 @@ switch(command) {
         });
         break;
     case 'toc':
+        var w = startWait('fetching TOC');
         require('./toc.js')(config).toc(function(err, toc) {
+            stopWait(w);
             if (err) {
                 console.log(err);
                 process.exit(1);

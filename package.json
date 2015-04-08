@@ -31,7 +31,8 @@
     "pw": "0.0.4",
     "rc": "^1.0.0",
     "request": "^2.54.0",
-    "shellby": "^0.1.0"
+    "shellby": "^0.1.0",
+    "term-spinner": "^1.0.0"
   },
   "main": "index.js",
   "devDependencies": {
