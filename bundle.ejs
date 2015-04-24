@@ -16,5 +16,5 @@ getDocumentFragment = module.exports.getDocumentFragment = function() {
 
 // event-based JSONP support
 if (typeof(window) !== 'undefined' && window.events) {
-    window.events.emit('append_episode', PKGJSON.brain.track, PKGJSON, getHTML(), module.exports);
+    window.events.emit('append_episode', module.exports);
 }
