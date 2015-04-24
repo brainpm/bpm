@@ -182,7 +182,7 @@ switch(command) {
         break;
     case 'publish':
         require('./bundle').bundle(opts, function() {
-            require('./publish').publish(opts);
+            require('./publish').publish(config, opts);
         });
         break;
     default:

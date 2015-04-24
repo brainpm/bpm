@@ -14,7 +14,8 @@ module.exports = function(config) {
         var commands = [
             'mkdir -p ' + wd,
             'rm -rf '+ ewd +' || exit 0',
-            'git clone ' + episode.url + ' ' + ewd
+            'git clone ' + episode.ssh_url + ' ' + ewd,
+            'cd ' + ewd + '; npm install'
         ];
         shellby.series(commands, function(err) {
             if (err) return cb(err);

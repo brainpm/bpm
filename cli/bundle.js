@@ -37,22 +37,25 @@ exports.bundle = function(opts, cb) {
     // render markdown
     var html = marked(fs.readFileSync(markdown_path, 'utf8'));
     var transforms = pkg.brain['content-transform'] || [];
-    transforms = _.map(transforms, function(t) {
-        var tp = path.join(process.cwd(), 'node_modules', t);
-        return require(tp)();
-    });
-    var combined = _.reduce(transforms, function(combined, n) {
-        return combined.pipe(n);
-    });
+    if (transforms.length) {
+        transforms = _.map(transforms, function(t) {
+            var tp = path.join(process.cwd(), 'node_modules', t);
+            return require(tp)();
+        });
+        var combined = _.reduce(transforms, function(combined, n) {
+            return combined.pipe(n);
+        });
 
-    var cs = concat(htmlReady);
-    combined.on('error', function(err) {
-        return cb(new Error('error while content-transform:'+ error.message));
-    });
-    combined.pipe(cs);
-    combined.write(html);
-    combined.end();
-
+        var cs = concat(htmlReady);
+        combined.on('error', function(err) {
+            return cb(new Error('error while content-transform:'+ error.message));
+        });
+        combined.pipe(cs);
+        combined.write(html);
+        combined.end();
+    } else {
+        htmlReady(html);
+    }
     function htmlReady(html) {
         var ctx = {
             cwd: process.cwd(),
@@ -63,7 +66,6 @@ exports.bundle = function(opts, cb) {
         mkdirp('./.bpm', function(err) {
             if (err) throw err;
             fs.writeFileSync('./.bpm/_index.js', code, 'utf-8');
-            fs.writeFileSync('./.bpm/package.json', JSON.stringify(pkg), 'utf-8');
             bfy.add('./.bpm/_index.js');
             //bfy.transform(require.resolve('markdownify'));
             bfy.transform(require.resolve('cssify'), {global: true});

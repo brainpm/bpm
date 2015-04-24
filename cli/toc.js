@@ -1,16 +1,13 @@
 var request = require('request');
 var async = require('async');
 var _ = require('lodash')._;
+var getEpisodeUrl = require('../lib/urls').getEpisodeUrl;
 
 module.exports = function(config) {
     var api = {};
 
-    function getPkgUrl (org, name) {
-        return 'https://'+ org +'.github.io/' + name +'/package.json';
-    }
-
     function getPackageJSON(repo, cb) {
-        var episodeUrl = getPkgUrl(repo.owner.login, repo.name);
+        var episodeUrl = getEpisodeUrl(repo.owner.login, repo.name);
         request(optionsFromUrl(episodeUrl), function(err, response, body) {
             if (err) return cb(err);
             if (response.statusCode !== 200) {
@@ -18,7 +15,8 @@ module.exports = function(config) {
             }
             var data = null;
             try {
-                data = JSON.parse(body);
+                json = body.match(/PKGJSON=(.*)\/\*PKGJSON/)[1];
+                data = JSON.parse(json);
             } catch(e) {
                 return cb(e);
             }
