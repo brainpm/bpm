@@ -35,7 +35,33 @@ exports.bundle = function(opts, cb) {
         throw new Error('unable to fund markdown file');
     }
     // render markdown
-    var html = marked(fs.readFileSync(markdown_path, 'utf8'));
+    var markDown = fs.readFileSync(markdown_path, 'utf8');
+    var myRenderer = new marked.Renderer();
+
+    myRenderer.heading = function (text, level) {
+    var escapedText = pkg.name + '_' + text.toLowerCase().replace(/[^\w]+/g, '-');
+        return '<h' + level + '><a name="' +
+            escapedText +
+            '" class="anchor" href="#' +
+            escapedText +
+            '"><span class="header-link"></span></a>' +
+            text + '</h' + level + '>';
+    };
+
+    marked.setOptions({
+          renderer: myRenderer,
+          gfm: true,
+          tables: true,
+          breaks: true,
+          pedantic: false,
+          sanitize: false,
+          smartLists: true,
+          smartypants: true
+    });
+
+    var html = marked(markDown);
+
+    // apply transforms
     var transforms = pkg.brain['content-transform'] || [];
     if (transforms.length) {
         transforms = _.map(transforms, function(t) {
