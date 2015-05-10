@@ -59,6 +59,10 @@ module.exports = function(config) {
                 console.log(data);
                 return cb(e);
             }
+            // reject organisation's repo
+            repos = _.reject(repos, function(r) {
+                return r.name === r.owner.login;
+            }); 
             /*
             var repos = _(repos).map(function(r) {
                 return {
