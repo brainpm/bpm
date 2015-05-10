@@ -175,7 +175,7 @@ switch(command) {
             }
         });
         break;
-    case 'create_remote':
+    case 'create-remote':
         require('./create_repo').create(config, function() {
             console.log('remote repository created');
         });
