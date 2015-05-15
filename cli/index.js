@@ -46,7 +46,7 @@ switch(command) {
                 console.log(err);
                 process.exit(1);
             }
-            var menu = getMenu(toc, ['intro'], ['intro'], tracks, 4);
+            var menu = getMenu(toc, ['intro'], ['intro'], 4);
             var option = 0;
             var options = {};
             var columns = _.map(tracks, function(t) {
