@@ -185,6 +185,21 @@ switch(command) {
             require('./publish').publish(config, opts);
         });
         break;
+    case 'info':
+        if (opts.argv.remain.length < 2) {
+            console.error ("Please specify an episode");
+            process.exit(1);
+        }
+        var episode = opts.argv.remain[1];
+        require('../lib/info')(config, opts, episode, function(err, data) {
+            if (err) {
+                console.error(err);
+                process.exit(1);
+            }
+            console.log(data);
+        });
+        break;
+
     default:
           console.error('Unknown sub command:', command);
           process.exit(2);
