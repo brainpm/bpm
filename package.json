@@ -31,8 +31,9 @@
     "pw": "0.0.4",
     "rc": "^1.0.0",
     "request": "^2.54.0",
-    "shellby": "0.2.x",
-    "term-spinner": "^1.0.0"
+    "term-spinner": "^1.0.0",
+    "progress-pipeline": "^1.4.0",
+    "terminal-status-board": "^1.4.0"
   },
   "main": "index.js",
   "devDependencies": {
