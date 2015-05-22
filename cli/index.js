@@ -194,7 +194,18 @@ switch(command) {
                 console.error(err);
                 process.exit(1);
             }
-            console.log(data);
+            var allCommits = data.masterBranchCommits.concat(data.ghPagesCommits);
+            allCommits = _.sortBy(allCommits, 'date');
+            allCommits = _.map(allCommits, function(commit) {
+                var isPublished = commit.branch === 'gh-pages' || commit.date <= data.lastPublishedMasterBranchCommit.date;
+                return {
+                    ' ': isPublished ? "    " : chalk.yellow("WIP"),
+                    date: moment(commit.date).fromNow(),
+                    committer: commit.githubHandle + ' (' + commit.committer + ')',
+                    message: commit.message
+                };
+            });
+            console.log(columnify(allCommits));
         });
         break;
 
