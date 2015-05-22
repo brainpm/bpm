@@ -89,17 +89,14 @@ switch(command) {
                 console.log('picking', pick.pkg.name);
                 console.log('new knowledge:', pick.pkg.brain.provides);
             }
-            walk(toc, visited, knowledge, visit, function(err) {
-                if (err) {
-                    console.error(err);
-                    if (typeof(err.unreachable) !== 'undefined') {
-                        console.error('Unreachable episodes:', _.map(err.unreachable, function(e) {return e.pkg.name;}).join(', '));
-                    }
-                    process.exit(1);
-                }
-            });
+            var unreachable = walk(toc, visited, knowledge, visit);
+            if (unreachable.length) {
+                console.error('Unreachable episodes:', _.map(unreachable, function(e) {return e.pkg.name;}).join(', '));
+                process.exit(1);
+            }
         });
         break;
+
     case 'toc':
         var w = startWait('fetching TOC');
         require('./toc.js')(config).toc(function(err, toc) {
@@ -108,37 +105,38 @@ switch(command) {
                 console.log(err);
                 process.exit(1);
             }
-            walk(toc, [], [], function() {}, function(err, visited) {
-                toc = visited;
-                if (err !== null && typeof(err.unreachable) !== 'undefined') {
-                    toc = toc.concat(_.map(err.unreachable, function(e) {
-                        e.unreachable = true;
-                        return e;
-                    }));
-                }
-                toc = _(toc).map(function(t) {
-                    var tmp;
-                    return {
-                        ' ': t.unreachable ? '!' : ' ',
-                        name: chalk[t.pkg.brain.track || 'white'](t.pkg.name),
-                        version: t.pkg.version,
-                        provides: (tmp = t.pkg.brain.provides||[]).length ? tmp.join(' ') : '-',
-                        requires: (tmp = t.pkg.brain.requires||[]).length ? tmp.join(' ') : '-',
-                        // track: t.pkg.brain.track || '',
-                        updated_at: moment(t.repo.updated_at).fromNow()
-                    };
-                }).value();
-                console.log(columnify(toc, {
-                    config: {
-                        requires: {
-                            maxWidth: 20
-                        },
-                        provides: {
-                            maxWidth: 20 
-                        }
-                    }
-                }));
+            var visited = [];
+            var unreachable = walk(toc, [], [], function(k,o,pick) {
+                visited.push(pick);
             });
+            toc = visited;
+            if (unreachable.length) {
+                toc = toc.concat(_.each(unreachable, function(e) {
+                    e.unreachable = true;
+                }));
+            }
+            toc = _(toc).map(function(t) {
+                var tmp;
+                return {
+                    ' ': t.unreachable ? '!' : ' ',
+                    name: chalk[t.pkg.brain.track || 'white'](t.pkg.name),
+                    version: t.pkg.version,
+                    provides: (tmp = t.pkg.brain.provides||[]).length ? tmp.join(' ') : '-',
+                    requires: (tmp = t.pkg.brain.requires||[]).length ? tmp.join(' ') : '-',
+                    // track: t.pkg.brain.track || '',
+                    updated_at: moment(t.repo.updated_at).fromNow()
+                };
+            }).value();
+            console.log(columnify(toc, {
+                config: {
+                    requires: {
+                        maxWidth: 20
+                    },
+                    provides: {
+                        maxWidth: 20 
+                    }
+                }
+            }));
         });
         break;
     case 'list-repositories':

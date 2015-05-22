@@ -106,5 +106,15 @@ test('walk should return the correct path through a given set of linked episodes
         t.end();
     });
 
+    t.test('duplicate items in history should not cause problems', function(t) {
+        visitCalls = [];
+        unreachable = walk([e1, e2, e3, e4, e5],['e1', 'e1', 'e1', 'e1', 'e1', 'e1', 'e2', 'e2'], undefined, visit);
+        t.deepEqual(unreachable, [e5]);
+        t.equal(visitCalls.length, 2);
+        t.deepEqual(visitCalls[0], ['a b c'.split(' '), [e3], e3])  ;
+        t.deepEqual(visitCalls[1], ['a b c d e'.split(' '), [e4], e4]);
+        t.end();
+    });
+
     t.end();
 });
