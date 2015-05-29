@@ -1,13 +1,17 @@
+// built-in node modules
 var fs = require('fs');
+var path = require('path');
+
+// npm modules
 var _ = require('lodash');
 var ejs = require('ejs');
-var path = require('path');
 var mkdirp = require('mkdirp');
-var template = require.resolve('../bundle.ejs');
-template = fs.readFileSync(template, 'utf-8');
 var bfy = require('browserify')();
 var marked = require('marked');
 var concat = require('concat-stream');
+
+var template = require.resolve('../bundle.ejs');
+template = fs.readFileSync(template, 'utf-8');
 
 exports.bundle = function(opts, cb) {
     // load package.json
