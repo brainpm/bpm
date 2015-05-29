@@ -7,6 +7,7 @@ var chalk = require('chalk');
 var columnify = require('columnify');
 var spin = require('term-spinner');
 var bundler = require('bpm-bundle');
+var publisher = require('bpm-publish');
 
 var urls = require('../lib/urls');
 
@@ -183,7 +184,7 @@ switch(command) {
         break;
     case 'publish':
         bundler.bundle(opts, function() {
-            require('./publish').publish(config, opts, urls.getEpisodeUrl);
+            publisher.publish(config, opts, urls.getEpisodeUrl);
         });
         break;
     case 'info':
