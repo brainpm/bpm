@@ -1,8 +1,9 @@
+// npm node modules
 var shellby = require('shellby');
 var git = require('parse-git-config');
-var getEpisodeUrl = require('../lib/urls').getEpisodeUrl;
 
-exports.publish = function(config, opts) {
+
+exports.publish = function(config, opts, getEpisodeUrl) {
     var gitConfig = git.sync();
     if (gitConfig === null) {
         console.error('This is not a git repository. Create one first and set a remote. The bpm bundle will be published on the gh-pages branch of this repository.');

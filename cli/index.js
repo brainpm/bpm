@@ -6,6 +6,9 @@ var moment = require('moment');
 var chalk = require('chalk');
 var columnify = require('columnify');
 var spin = require('term-spinner');
+var bundler = require('bpm-bundle');
+
+var urls = require('../lib/urls');
 
 function startWait(msg) {
     console.log();
@@ -158,7 +161,7 @@ switch(command) {
         require('./init').init(config);
         break;
     case 'bundle':
-        require('./bundle').bundle(opts, function(err) {
+        bundler.bundle(opts, function(err) {
             if (err) {
                 console.error(err.message);
                 process.exit(1);
@@ -179,8 +182,8 @@ switch(command) {
         });
         break;
     case 'publish':
-        require('./bundle').bundle(opts, function() {
-            require('./publish').publish(config, opts);
+        bundler.bundle(opts, function() {
+            require('./publish').publish(config, opts, urls.getEpisodeUrl);
         });
         break;
     case 'info':
