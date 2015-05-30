@@ -184,7 +184,13 @@ switch(command) {
         break;
     case 'publish':
         bundler.bundle(opts, function() {
-            publisher.publish(config, opts, urls.getEpisodeUrl);
+            publisher.publish(config, opts, function(err) {
+                if (err) {
+                    console.error(err.message);
+                    process.exit(1);
+                }
+                console.log('done publishing');
+            });
         });
         break;
     case 'info':
