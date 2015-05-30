@@ -1,4 +1,6 @@
 #!/usr/bin/env node
+var path = require('path');
+
 var nopt = require('nopt');
 var rc = require('rc');
 var opts = nopt();
@@ -6,6 +8,7 @@ var moment = require('moment');
 var chalk = require('chalk');
 var columnify = require('columnify');
 var spin = require('term-spinner');
+
 var bundler = require('bpm-bundle');
 var publisher = require('bpm-publish');
 
@@ -184,12 +187,15 @@ switch(command) {
         break;
     case 'publish':
         bundler.bundle(opts, function() {
-            publisher.publish(config, opts, function(err) {
+            var repoDir = '.';
+            var bundleDir = path.join(repoDir, '.bpm');
+            publisher.publish(config, opts, repoDir, bundleDir, function(err, data) {
                 if (err) {
                     console.error(err.message);
                     process.exit(1);
                 }
                 console.log('done publishing');
+                console.log(urls.getEpisodeUrl(data.organisation, data.repositoryName));
             });
         });
         break;
