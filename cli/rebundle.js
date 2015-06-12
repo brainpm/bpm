@@ -1,11 +1,14 @@
 var path = require('path');
+var spawn = require('child_process').spawn;
+var util = require('util');
+
 var chalk = require('chalk');
 var Board = require('terminal-status-board');
 var pipeline = require('progress-pipeline');
 var _ = require('lodash');
 
-var spawn = require('child_process').spawn;
-var util = require('util');
+var bundler = require('bpm-bundle');
+var publisher = require('bpm-publish');
 
 function shell(cmd, opts, cb) {
     if (typeof opts ===  'function') {
@@ -40,11 +43,31 @@ function shellJob(cmd, opts) {
     return job;
 }
 
+function bundleJob(repoDir) {
+    var bundleDir = path.join(repoDir, '.bpm');
+    var job = function(cb) {
+        bundler.bundle({},{}, repoDir, bundleDir, cb);
+    };
+    job.title = 'bundling';
+    return job;
+}
+
+function publishJob(repoDir) {
+    repoDir = path.relative(process.cwd(), repoDir);
+    var bundleDir = path.join(repoDir, '.bpm');
+    var job = function(cb) {
+        publisher.publish({},{}, repoDir, bundleDir, cb);
+    };
+    job.title = 'publishing';
+    return job;
+}
+
 module.exports = function(config) {
     var list = require('./toc')(config).listRepos;
     
     function makePipeline(episode) {
         var wd = path.join(process.env.HOME, '.bpm/clones');
+//        wd = path.relative(process.cwd(), wd);
         var ewd = path.join(wd, episode.name);
 
         var jobs = [
@@ -59,7 +82,8 @@ module.exports = function(config) {
             ),
             shellJob('git checkout master', {cwd: ewd}),
             shellJob('npm install', {cwd: ewd}),
-            shellJob('bpm publish', {cwd: ewd})
+            bundleJob(ewd),
+            publishJob(ewd)
         ];
         return pipeline(jobs);
     }

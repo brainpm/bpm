@@ -165,7 +165,7 @@ switch(command) {
         require('./init').init(config);
         break;
     case 'bundle':
-        bundler.bundle(opts, function(err) {
+        bundler.bundle(config, opts, '.', '.bpm', function(err) {
             if (err) {
                 console.error(err.message);
                 process.exit(1);
@@ -186,9 +186,9 @@ switch(command) {
         });
         break;
     case 'publish':
-        bundler.bundle(opts, function() {
-            var repoDir = '.';
-            var bundleDir = path.join(repoDir, '.bpm');
+        var repoDir = '.';
+        var bundleDir = path.join(repoDir, '.bpm');
+        bundler.bundle(config, opts, repoDir, bundleDir, function() {
             publisher.publish(config, opts, repoDir, bundleDir, function(err, data) {
                 if (err) {
                     console.error(err.message);
