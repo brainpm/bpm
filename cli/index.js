@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 var path = require('path');
 
+var debug = require('debug')('bpm cli');
 var nopt = require('nopt');
 var rc = require('rc');
 var opts = nopt();
@@ -109,9 +110,11 @@ switch(command) {
         require('./toc.js')(config).toc(function(err, toc) {
             stopWait(w);
             if (err) {
+                console.log('Error while fetching TOC:');
                 console.log(err);
                 process.exit(1);
             }
+            debug('TOC retrieval was successful.');
             var visited = [];
             var unreachable = walk(toc, [], [], function(k,o,pick) {
                 visited.push(pick);
