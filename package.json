@@ -1,6 +1,6 @@
 {
   "name": "brainpm",
-  "version": "2.1.5",
+  "version": "2.2.0",
   "description": "a package manager for the brain",
   "bin": {
     "bpm": "cli/index.js"
