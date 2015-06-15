@@ -44,18 +44,20 @@ function shellJob(cmd, opts) {
 }
 
 function bundleJob(repoDir) {
-    var bundleDir = path.join(repoDir, '.bpm');
+
     var job = function(cb) {
-        bundler.bundle({},{}, repoDir, bundleDir, cb);
+        var bundleDir = path.join(repoDir, '.bpm', 'bundle');
+        bundler.bundle({},{}, repoDir, bundleDir, function(err) {
+            cb(err);
+        });
     };
     job.title = 'bundling';
     return job;
 }
 
 function publishJob(repoDir) {
-    repoDir = path.relative(process.cwd(), repoDir);
-    var bundleDir = path.join(repoDir, '.bpm');
     var job = function(cb) {
+        var bundleDir = path.join(repoDir, '.bpm', 'bundle');
         publisher.publish({},{}, repoDir, bundleDir, cb);
     };
     job.title = 'publishing';
@@ -97,7 +99,6 @@ module.exports = function(config) {
             
             var board = Board();
             var errors = [];
-
             _.map(episodes, function(e) {
                 var p = makePipeline(e);
                 p.on('error', function(err) {

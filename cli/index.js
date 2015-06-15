@@ -51,7 +51,7 @@ switch(command) {
         var tracks = ['yellow', 'black', 'blue'];
         require('./toc')(config).toc(function(err, toc) {
             if (err) {
-                console.log(err);
+                console.error('Error fetching toc', err);
                 process.exit(1);
             }
             var menu = getMenu(toc, ['intro'], ['intro'], 4);
@@ -87,7 +87,7 @@ switch(command) {
         }
         require('./toc')(config).toc(function(err, toc) {
             if (err) {
-                console.log(err);
+                console.log('Error fetching TOC', err);
                 process.exit(1);
             }
 
@@ -110,8 +110,7 @@ switch(command) {
         require('./toc.js')(config).toc(function(err, toc) {
             stopWait(w);
             if (err) {
-                console.log('Error while fetching TOC:');
-                console.log(err);
+                console.error('Error while fetching TOC:', err);
                 process.exit(1);
             }
             debug('TOC retrieval was successful.');
@@ -152,7 +151,7 @@ switch(command) {
     case 'list-repositories':
         require('./toc.js')(config).listRepos(function(err, data) {
             if (err) {
-                console.log(err);
+                console.err('Error while fetching TOC', err);
                 process.exit(1);
             }
             data.forEach(function(episode) {
@@ -168,9 +167,9 @@ switch(command) {
         require('./init').init(config);
         break;
     case 'bundle':
-        bundler.bundle(config, opts, '.', '.bpm', function(err) {
+        bundler.bundle(config, opts, '.', '.bpm/bundle', function(err) {
             if (err) {
-                console.error(err.message);
+                console.error('error while bundling', err);
                 process.exit(1);
             }
         });
@@ -178,7 +177,7 @@ switch(command) {
     case 'rebundle-all':
         require('./rebundle')(config).rebundleAll(function(err) {
             if (err) {
-                console.error(err);
+                console.error('errors while rebundling', err);
                 process.exit(1);
             }
         });
@@ -190,15 +189,14 @@ switch(command) {
         break;
     case 'publish':
         var repoDir = '.';
-        var bundleDir = path.join(repoDir, '.bpm');
+        var bundleDir = path.join(repoDir, '.bpm', 'bundle');
         bundler.bundle(config, opts, repoDir, bundleDir, function() {
             publisher.publish(config, opts, repoDir, bundleDir, function(err, data) {
                 if (err) {
-                    console.error(err.message);
+                    console.error('error while publishing', err.message);
                     process.exit(1);
                 }
-                console.log('done publishing');
-                console.log(urls.getEpisodeUrl(data.organisation, data.repositoryName));
+                console.log('published to', urls.getEpisodeUrl(data.organisation, data.repositoryName));
             });
         });
         break;
@@ -210,7 +208,7 @@ switch(command) {
         var episode = opts.argv.remain[1];
         require('../lib/info')(config, opts, episode, function(err, data) {
             if (err) {
-                console.error(err);
+                console.error('Error fetching info', err);
                 process.exit(1);
             }
             var allCommits = data.masterBranchCommits.concat(data.ghPagesCommits);

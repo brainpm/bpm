@@ -64,7 +64,7 @@ module.exports = function(config) {
                 repos = JSON.parse(data);
                 debug('found %d repositories', repos.length);
             } catch(e) {
-                console.log(data);
+                debug('Error parsing JSON reply from github', data);
                 return cb(e);
             }
             // reject organisation's repo
