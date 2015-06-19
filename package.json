@@ -13,7 +13,7 @@
   "dependencies": {
     "async": "^1.0.0",
     "bpm-bundle": "^1.2.0",
-    "bpm-publish": "^3.1.1",
+    "bpm-publish": "^3.1.2",
     "chalk": "^1.0.0",
     "columnify": "^1.4.1",
     "debug": "^2.2.0",

@@ -191,7 +191,9 @@ switch(command) {
         var repoDir = '.';
         var bundleDir = path.join(repoDir, '.bpm', 'bundle');
         bundler.bundle(config, opts, repoDir, bundleDir, function() {
+            debug('running publisher');
             publisher.publish(config, opts, repoDir, bundleDir, function(err, data) {
+                debug('publisher done');
                 if (err) {
                     console.error('error while publishing', err.message);
                     process.exit(1);
