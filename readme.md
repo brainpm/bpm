@@ -93,7 +93,7 @@ bpm bundle
 
 ### bpm publish
 
-`bpm publish` takes a previously created bundle and pushes it to the gh-pages branch of the git remote called 'origon'. If the origin points to github, this means the bundle becomes available on the web. 
+`bpm publish` takes a previously created bundle and pushes it to the gh-pages branch of the git remote called `origin`. If the origin points to github, this means the bundle becomes available on the web. 
 
 ``` 
 bpm publish
@@ -120,3 +120,11 @@ shows a list of all repositories in the organsiation.
 ```
 bpm list-repositories
 ```
+
+### bpm info <episode-name>
+shows information about a specific episode
+
+```
+bpm info intro
+```
+
