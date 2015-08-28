@@ -9,11 +9,14 @@ var moment = require('moment');
 var chalk = require('chalk');
 var columnify = require('columnify');
 var spin = require('term-spinner');
+var map = require('map-stream');
+var concat = require('concat-stream');
 
 var bundler = require('bpm-bundle');
 var publisher = require('bpm-publish');
 
 var urls = require('../lib/urls');
+var toc= require('./toc');
 
 function startWait(msg) {
     console.log();
@@ -106,47 +109,14 @@ switch(command) {
         break;
 
     case 'toc':
-        var w = startWait('fetching TOC');
-        require('./toc.js')(config).toc(function(err, toc) {
-            stopWait(w);
-            if (err) {
-                console.error('Error while fetching TOC:', err);
-                process.exit(1);
-            }
-            debug('TOC retrieval was successful.');
-            var visited = [];
-            var unreachable = walk(toc, [], [], function(k,o,pick) {
-                visited.push(pick);
-            });
-            toc = visited;
-            if (unreachable.length) {
-                toc = toc.concat(_.each(unreachable, function(e) {
-                    e.unreachable = true;
-                }));
-            }
-            toc = _(toc).map(function(t) {
-                var tmp;
-                return {
-                    ' ': t.unreachable ? '!' : ' ',
-                    name: chalk[t.pkg.brain.track || 'white'](t.pkg.name),
-                    version: t.pkg.version,
-                    provides: (tmp = t.pkg.brain.provides||[]).length ? tmp.join(' ') : '-',
-                    requires: (tmp = t.pkg.brain.requires||[]).length ? tmp.join(' ') : '-',
-                    // track: t.pkg.brain.track || '',
-                    updated_at: moment(t.repo.updated_at).fromNow()
-                };
-            }).value();
-            console.log(columnify(toc, {
-                config: {
-                    requires: {
-                        maxWidth: 20
-                    },
-                    provides: {
-                        maxWidth: 20 
-                    }
-                }
-            }));
+        var metaStream = toc(config.github_organisation, config.github_user);
+        metaStream.on('error', function(err) {
+            console.error('Error fetching toc', err);
+            process.exit(1);
         });
+        metaStream.pipe(map(function(t, cb) {
+            console.log(t.name); 
+        }));
         break;
     case 'list-repositories':
         require('./toc.js')(config).listRepos(function(err, data) {
