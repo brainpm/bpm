@@ -7,6 +7,7 @@ var rc = require('rc');
 var opts = nopt();
 var moment = require('moment');
 var chalk = require('chalk');
+var pull = require('pull-stream');
 var columnify = require('columnify');
 var spin = require('term-spinner');
 var map = require('map-stream');
@@ -16,7 +17,7 @@ var bundler = require('bpm-bundle');
 var publisher = require('bpm-publish');
 
 var urls = require('../lib/urls');
-var toc= require('./toc');
+var debundle = require('bpm-bundle').debundle;
 
 function startWait(msg) {
     console.log();
@@ -109,14 +110,20 @@ switch(command) {
         break;
 
     case 'toc':
-        var metaStream = toc(config.github_organisation, config.github_user);
-        metaStream.on('error', function(err) {
-            console.error('Error fetching toc', err);
-            process.exit(1);
-        });
-        metaStream.pipe(map(function(t, cb) {
-            console.log(t.name); 
-        }));
+        var retrievalStream = publisher.getRetrievalStream(config.github_organisation, config.github_user);
+        pull(
+            retrievalStream,
+            pull.asyncMap(debundle),
+            pull.through(function(metaData) {
+                console.log(metaData.name);
+            }),
+            pull.onEnd(function(err) {
+                if (err) {
+                    console.error('Error fetching toc', err);
+                    process.exit(1);
+                } 
+            })
+        );
         break;
     case 'list-repositories':
         require('./toc.js')(config).listRepos(function(err, data) {
