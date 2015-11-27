@@ -19,6 +19,8 @@ var publisher = require('bpm-publish');
 var urls = require('../lib/urls');
 var debundle = require('bpm-bundle').debundle;
 
+var bpmInit = require('bpm-init');
+
 function startWait(msg) {
     console.log();
     var spinner = spin.new();
@@ -113,7 +115,7 @@ switch(command) {
         var retrievalStream = publisher.getRetrievalStream(config.github_organisation, config.github_user);
         pull(
             retrievalStream,
-            pull.asyncMap(debundle),
+            pull.asyncMap(debundle.getMetaData),
             pull.through(function(metaData) {
                 console.log(metaData.name);
             }),
@@ -141,7 +143,7 @@ switch(command) {
         console.log(require('../package.json').version);
         break;
     case 'init':
-        require('./init').init(config);
+        bpmInit(config);
         break;
     case 'bundle':
         bundler.bundle(config, opts, '.', '.bpm/bundle', function(err) {
