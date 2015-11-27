@@ -20,6 +20,7 @@ var urls = require('../lib/urls');
 var debundle = require('bpm-bundle').debundle;
 
 var bpmInit = require('bpm-init');
+var listEpisodedata = require('./ls');
 
 function startWait(msg) {
     console.log();
@@ -38,7 +39,7 @@ function stopWait(spinner) {
     process.stdout.cursorTo(0);
     clearInterval(spinner.timer);
 }
-    
+
 var _ = require('lodash');
 var walk = require('../lib/walk').walk;
 var getMenu = require('../lib/walk').getMenu;
@@ -112,20 +113,7 @@ switch(command) {
         break;
 
     case 'ls':
-        var retrievalStream = publisher.getRetrievalStream(config.github_organisation, config.github_user);
-        pull(
-            retrievalStream,
-            pull.asyncMap(debundle.getMetaData),
-            pull.through(function(metaData) {
-                console.log(metaData.name);
-            }),
-            pull.onEnd(function(err) {
-                if (err) {
-                    console.error('Error fetching toc', err);
-                    process.exit(1);
-                } 
-            })
-        );
+        listEpisodedata();
         break;
     case 'list-repositories':
         require('./toc.js')(config).listRepos(function(err, data) {
