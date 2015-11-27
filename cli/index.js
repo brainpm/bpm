@@ -111,7 +111,7 @@ switch(command) {
         });
         break;
 
-    case 'toc':
+    case 'ls':
         var retrievalStream = publisher.getRetrievalStream(config.github_organisation, config.github_user);
         pull(
             retrievalStream,
